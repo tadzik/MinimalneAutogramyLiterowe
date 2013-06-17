@@ -71,13 +71,36 @@ func isImportant(b byte) bool {
 }
 
 func (me *Sentence) score() float64 {
-    buf := []byte(me.String())
     var counts [26]int
-    for _, v := range buf {
-        if isImportant(v) {
-            counts[byteIdx(v)]++
+
+    // counts for "this sentence contains only (...) and"
+    counts[byteIdx('a')] = 2
+    counts[byteIdx('c')] = 2
+    counts[byteIdx('d')] = 1
+    counts[byteIdx('e')] = 3
+    counts[byteIdx('h')] = 1
+    counts[byteIdx('i')] = 2
+    counts[byteIdx('l')] = 1
+    counts[byteIdx('n')] = 6
+    counts[byteIdx('o')] = 2
+    counts[byteIdx('s')] = 3
+    counts[byteIdx('t')] = 3
+    counts[byteIdx('y')] = 1
+
+    for k, v := range me {
+        if v == 0 {
+            continue
+        }
+        counts[k]++
+        counts[byteIdx('s')]++
+        repr := numString(v)
+        for _, v := range []byte(repr) {
+            if isImportant(v) {
+                counts[byteIdx(v)]++
+            }
         }
     }
+
     diffSum := 0.0
     //charSum := 0.0
     for i := 0; i < 26; i++ {
