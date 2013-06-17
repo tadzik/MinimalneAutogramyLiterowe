@@ -74,18 +74,18 @@ func (me *Sentence) score() float64 {
     var counts [26]int
 
     // counts for "this sentence contains only (...) and"
-    counts[byteIdx('a')] = 2
-    counts[byteIdx('c')] = 2
-    counts[byteIdx('d')] = 1
-    counts[byteIdx('e')] = 3
-    counts[byteIdx('h')] = 1
-    counts[byteIdx('i')] = 2
-    counts[byteIdx('l')] = 1
-    counts[byteIdx('n')] = 6
-    counts[byteIdx('o')] = 2
-    counts[byteIdx('s')] = 3
-    counts[byteIdx('t')] = 3
-    counts[byteIdx('y')] = 1
+    counts[0] = 2  // a
+    counts[2] = 2  // c
+    counts[3] = 1  // d
+    counts[4] = 3  // e
+    counts[7] = 1  // h
+    counts[8] = 2  // i
+    counts[11] = 1 // l
+    counts[13] = 6 // n
+    counts[14] = 2 // o
+    counts[18] = 3 // s
+    counts[19] = 3 // t
+    counts[24] = 1 // y
 
     for k, v := range me {
         if v == 0 {
