@@ -7,7 +7,17 @@ import (
     "math"
     "math/rand"
 )
+type Population struct {
+    genomes [100] Genom
+    best []Genom
+}
+
 type Genom [26] float64
+
+type GenomScore struct {
+    genom *Genom
+    score int
+}
 
 func toSentence(genom *Genom, sentence *autogramy.Sentence) {
     for i, v := range genom {
@@ -18,12 +28,10 @@ func toSentence(genom *Genom, sentence *autogramy.Sentence) {
     }       
 }
 
-func getRandomGenom() *Genom {
-    genom := &Genom{}
+func randomizeGenom(genom *Genom)  {
     for i := range genom {
         genom[i]=rand.Float64()
     }      
-    return genom
 }
 
 func byteIdx(b byte) int {
@@ -32,11 +40,42 @@ func byteIdx(b byte) int {
 
     return int(b) - int('a')
 }
-
+func runAlgorithm(population * Population) {
+    scores:= [100] GenomScore{}
+    sentence := &autogramy.Sentence{}
+    for i:=0;i<10;i++ {
+        //add scores
+        for j := range scores {
+            scores[j].genom=&population.genomes[j]
+            toSentence(&population.genomes[j],sentence)
+            scores[j].score=(int)(sentence.Score())
+            
+            // check if we wonna push the best element on the list of best genomes
+            if len(population.best) == 0 {
+                population.best = append(population.best, population.genomes[j])
+            } else {
+                newSentence := &autogramy.Sentence{}
+                toSentence(&population.genomes[j],newSentence)
+                newScore:=(int)(sentence.Score())
+                if (scores[j].score<newScore) {
+                    population.best=append(population.best, *scores[j].genom)
+                }
+                    
+            }
+       
+        }           
+        //best
+        // sort
+    }
+}
 func main() {
-    rand.Seed(13)
+    rand.Seed(14)
     sen := &autogramy.Sentence{}
-    genom := getRandomGenom()     
+    var population Population;
+    for i := range population.genomes {
+        randomizeGenom(&population.genomes[i])
+    }
+    runAlgorithm(&population);
     /*sen[byteIdx('a')] = 3
     sen[byteIdx('c')] = 3
     sen[byteIdx('d')] = 2
@@ -56,7 +95,12 @@ func main() {
     sen[byteIdx('w')] = 6
     sen[byteIdx('x')] = 2
     sen[byteIdx('y')] = 4*/
-    toSentence(genom,sen)
-    fmt.Println(sen.String())
-    fmt.Println("Score is", sen.Score())
+    //fmt.Println(sen.String())
+    for i := range population.best {
+        toSentence(&population.best[i],sen)
+        fmt.Println(sen.String())
+        fmt.Println((int)(sen.Score()))
+        
+    }
+    //fmt.Println("Score is", sen.Score())
 }

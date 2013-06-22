@@ -106,8 +106,8 @@ func (me *Sentence) Score() float64 {
     for i := 0; i < 26; i++ {
         //charSum += float64(me[i])
         if int(math.Abs(float64(counts[i] - me[i]))) > 0 {
-            fmt.Println("There were supposed to be", me[i],
-                        string(idxByte(i)), "but there are", counts[i])
+            /*fmt.Println("There were supposed to be", me[i],
+                        string(idxByte(i)), "but there are", counts[i])*/
             diffSum += math.Abs(float64(counts[i] - me[i]))
         }
     }
