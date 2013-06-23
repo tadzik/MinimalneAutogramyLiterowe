@@ -45,29 +45,31 @@ func byteIdx(b byte) int {
     return int(b) - int('a')
 }
 func runAlgorithm(population * Population) {
-    scores:= [popCount] GenomScore{}
+    scores := [popCount] GenomScore{}
     sentence := &autogramy.Sentence{}
     for i:=0;i<generations;i++ {
+        //calculate and sum scores
+        scoresSum:=0
         for j := range scores {
             scores[j].genom=&population.genomes[j]
             toSentence(&population.genomes[j],sentence)
-            scores[j].score=(int)(sentence.Score())
-            
+            scores[j].score = (int)(sentence.Score())
+            scoresSum+=scores[j].score
             // check if we wonna push the best element on the list of best genomes
             if len(population.best) == 0 {
                 population.best = append(population.best, population.genomes[j])
             } else {
                 newSentence := &autogramy.Sentence{}
-                toSentence(&population.genomes[j],newSentence)
-                newScore:=(int)(sentence.Score())
+                toSentence(&population.best[len(population.best)-1],newSentence)
+                newScore:=(int)(newSentence.Score())
                 if (scores[j].score<newScore) {
-                    population.best=append(population.best, *scores[j].genom)
+                    population.best=append(population.best, *scores[j].genom)                 
                 }
                     
             }
        
         }           
-        //best
+        // best
         // sort
     }
 }
