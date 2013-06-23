@@ -8,8 +8,9 @@ import (
     "math/rand"
 )
 const (
-    generations=10
-    popCount=10
+    generations=1000
+    popCount=50
+    rankCount=6
 )
 type Population struct {
     genomes [popCount] Genom
@@ -19,7 +20,7 @@ type Population struct {
 type Genom [26] float64
 
 type GenomScore struct {
-    genom *Genom
+    genom Genom
     score int
 }
 
@@ -44,6 +45,50 @@ func byteIdx(b byte) int {
 
     return int(b) - int('a')
 }
+func findParents(scores *[popCount]GenomScore, scoresSum int) (*Genom, *Genom) {
+    father:=&scores[rand.Intn(len(scores))]
+    mother:=&scores[rand.Intn(len(scores))]
+    if father.score<mother.score {
+        father,mother=mother,father
+    }
+    for i:=0;i<rankCount;i++ {
+        candidate:=&scores[rand.Intn(len(scores))]
+        if candidate.score<mother.score {
+            if candidate.score<father.score {
+                father,mother=candidate,father
+            } else {
+                mother=candidate
+            }
+        }
+    }
+    return &father.genom, &mother.genom
+    panic("Failed to choose parent")
+}
+func spawnGenome(genom * Genom , scores *[popCount]GenomScore, scoresSum int) {
+    // random two parents.
+    father,mother := findParents(scores,scoresSum)
+    crossing1:=rand.Intn(len(genom))
+    crossing2:=rand.Intn(len(genom))
+    if crossing1 > crossing2 {
+        crossing1,crossing2=crossing2,crossing1
+    }
+    for i := range genom {
+        // get genome from parents
+        if i < crossing1 && i >= crossing2 {
+            genom[i]=mother[i]
+        } else {
+            genom[i]=father[i]
+        }
+        // mutate
+        genom[i]+=rand.NormFloat64()/20
+
+        genom[i]=math.Min(genom[i],1)
+        genom[i]=math.Max(genom[i],0)
+    } 
+        
+
+
+}
 func runAlgorithm(population * Population) {
     scores := [popCount] GenomScore{}
     sentence := &autogramy.Sentence{}
@@ -51,7 +96,7 @@ func runAlgorithm(population * Population) {
         //calculate and sum scores
         scoresSum:=0
         for j := range scores {
-            scores[j].genom=&population.genomes[j]
+            scores[j].genom=population.genomes[j]
             toSentence(&population.genomes[j],sentence)
             scores[j].score = (int)(sentence.Score())
             scoresSum+=scores[j].score
@@ -62,13 +107,18 @@ func runAlgorithm(population * Population) {
                 newSentence := &autogramy.Sentence{}
                 toSentence(&population.best[len(population.best)-1],newSentence)
                 newScore:=(int)(newSentence.Score())
-                if (scores[j].score<newScore) {
-                    population.best=append(population.best, *scores[j].genom)                 
+                if scores[j].score<newScore {
+                    population.best=append(population.best, scores[j].genom)                 
                 }
-                    
             }
        
-        }           
+        }
+        for j := range population.genomes {
+            spawnGenome(&population.genomes[j], &scores,scoresSum)
+
+        }
+        // replace old population with new population
+          
         // best
         // sort
     }
@@ -107,5 +157,8 @@ func main() {
         fmt.Println((int)(sen.Score()))
         
     }
-    //fmt.Println("Score is", sen.Score())
+    /*for i:=0;i<40;i++ {
+        fmt.Println("Dupa ", rand.NormFloat64()/20)
+    }*/
+    
 }
