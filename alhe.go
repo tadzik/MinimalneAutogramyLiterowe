@@ -7,8 +7,12 @@ import (
     "math"
     "math/rand"
 )
+const (
+    generations=10
+    popCount=10
+)
 type Population struct {
-    genomes [100] Genom
+    genomes [popCount] Genom
     best []Genom
 }
 
@@ -41,10 +45,9 @@ func byteIdx(b byte) int {
     return int(b) - int('a')
 }
 func runAlgorithm(population * Population) {
-    scores:= [100] GenomScore{}
+    scores:= [popCount] GenomScore{}
     sentence := &autogramy.Sentence{}
-    for i:=0;i<10;i++ {
-        //add scores
+    for i:=0;i<generations;i++ {
         for j := range scores {
             scores[j].genom=&population.genomes[j]
             toSentence(&population.genomes[j],sentence)
@@ -69,7 +72,7 @@ func runAlgorithm(population * Population) {
     }
 }
 func main() {
-    rand.Seed(14)
+    rand.Seed(43)
     sen := &autogramy.Sentence{}
     var population Population;
     for i := range population.genomes {
