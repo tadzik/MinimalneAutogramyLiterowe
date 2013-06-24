@@ -6,6 +6,12 @@ import (
 	"math"
 )
 
+var numStringCache map[int]string
+
+func init() {
+	numStringCache = make(map[int]string)
+}
+
 func byteIdx(b byte) int {
 	return int(b) - int('a')
 }
@@ -17,6 +23,13 @@ func idxByte(i int) byte {
 }
 
 func numString(n int) string {
+	if numStringCache[n] == "" {
+		numStringCache[n] = numString_(n)
+	}
+	return numStringCache[n]
+}
+
+func numString_(n int) string {
 	if n > 999 {
 		panic("We reached way too large numbers")
 	}
