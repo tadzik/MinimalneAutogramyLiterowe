@@ -20,14 +20,23 @@ func idxByte(i int) byte {
 }
 
 func numString(n int) string {
-	if n > 99 {
-		panic("FUCKUP")
+	if n > 999 {
+		panic("We reached way too large numbers")
 	}
 	arr := []string{"", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 		"ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
 		"seventeen", "eighteen", "nineteen", "twenty"}
 	if n <= 20 {
 		return arr[n]
+	}
+
+	hunprefix := ""
+	for i := 9; i > 0; i-- {
+		if n >= i*100 {
+			n -= i * 100
+			hunprefix = fmt.Sprintf("%s hundred", arr[i])
+			break
+		}
 	}
 
 	arr2 := []string{"", "", "twenty", "thirty", "fourty", "fifty",
@@ -41,9 +50,9 @@ func numString(n int) string {
 		}
 	}
 	if n == 0 {
-		return prefix
+		return fmt.Sprintf("%s %s", hunprefix, prefix)
 	}
-	return fmt.Sprintf("%s-%s", prefix, arr[n])
+	return fmt.Sprintf("%s %s-%s", hunprefix, prefix, arr[n])
 }
 
 type Sentence [26]int
