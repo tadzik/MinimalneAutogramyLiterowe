@@ -119,9 +119,6 @@ func runAlgorithm(population *Population) {
 					population.best = append(population.best, scores[j])
                     
 				} else {
-					//newSentence := &autogramy.Sentence{}
-					//toSentence(&population.best[len(population.best)-1], newSentence)
-					//newScore := (int)(newSentence.Score())
 					if scores[j].score < population.best[len(population.best)-1].score {
 						population.best = append(population.best, scores[j])
 					}
@@ -132,10 +129,6 @@ func runAlgorithm(population *Population) {
 		for j := range population.genomes {
 			spawnGenome(&population.genomes[j], &scores, scoresSum)
 		}
-		// replace old population with new population
-
-		// best
-		// sort
 	}
 }
 func main() {
