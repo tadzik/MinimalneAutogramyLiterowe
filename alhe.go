@@ -16,7 +16,7 @@ import (
 var profiling = flag.Bool("profiling", false, "perform profiling with runtime/pprof")
 var numThreads = flag.Int("threads", 1, "how many cpu threads to use")
 var generations = flag.Int("generations", 2000, "how many generations to calculate")
-var rankCount = flag.Int("rankCount", 6, "I have no idea what is this") // XXX FIXME
+var rankCount = flag.Int("rankCount", 6, "Size of extra ranks for the ranking selection") 
 //var popCount    = flag.Int("populations", 50, "how many populations to maintain")
 
 const popCount = 50
