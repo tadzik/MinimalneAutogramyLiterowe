@@ -23,7 +23,7 @@ const popCount = 50
 
 type Population struct {
 	genomes [popCount]Genom
-	best    []Genom
+	best    []GenomScore
 }
 
 type Genom [26]float64
@@ -116,13 +116,14 @@ func runAlgorithm(population *Population) {
 				scoresSum += scores[j].score
 				// check if we wonna push the best element on the list of best genomes
 				if len(population.best) == 0 {
-					population.best = append(population.best, population.genomes[j])
+					population.best = append(population.best, scores[j])
+                    
 				} else {
-					newSentence := &autogramy.Sentence{}
-					toSentence(&population.best[len(population.best)-1], newSentence)
-					newScore := (int)(newSentence.Score())
-					if scores[j].score < newScore {
-						population.best = append(population.best, scores[j].genom)
+					//newSentence := &autogramy.Sentence{}
+					//toSentence(&population.best[len(population.best)-1], newSentence)
+					//newScore := (int)(newSentence.Score())
+					if scores[j].score < population.best[len(population.best)-1].score {
+						population.best = append(population.best, scores[j])
 					}
 				}
 			}()
@@ -158,7 +159,7 @@ func main() {
 	}
 	runAlgorithm(&population)
 	for i := range population.best {
-		toSentence(&population.best[i], sen)
+		toSentence(&population.best[i].genom, sen)
 		fmt.Println(sen.String())
 		fmt.Println((int)(sen.Score()))
 	}
