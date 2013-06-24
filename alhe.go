@@ -8,15 +8,13 @@ import (
 	"math"
 	"math/rand"
 	"os"
-	"runtime"
 	"runtime/pprof"
-	"sync"
 )
 
 var profiling = flag.Bool("profiling", false, "perform profiling with runtime/pprof")
-var numThreads = flag.Int("threads", 1, "how many cpu threads to use")
 var generations = flag.Int("generations", 2000, "how many generations to calculate")
-var rankCount = flag.Int("rankCount", 6, "Size of extra ranks for the ranking selection") 
+var rankCount = flag.Int("rankCount", 6, "Size of extra ranks for the ranking selection")
+
 //var popCount    = flag.Int("populations", 50, "how many populations to maintain")
 
 const popCount = 50
@@ -105,27 +103,20 @@ func runAlgorithm(population *Population) {
 	for i := 0; i < *generations; i++ {
 		//calculate and sum scores
 		scoresSum := 0
-		var wg sync.WaitGroup
 		for j := range scores {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				scores[j].genom = population.genomes[j]
-				toSentence(&population.genomes[j], sentence)
-				scores[j].score = (int)(sentence.Score())
-				scoresSum += scores[j].score
-				// check if we wonna push the best element on the list of best genomes
-				if len(population.best) == 0 {
+			scores[j].genom = population.genomes[j]
+			toSentence(&population.genomes[j], sentence)
+			scores[j].score = (int)(sentence.Score())
+			scoresSum += scores[j].score
+			// check if we wonna push the best element on the list of best genomes
+			if len(population.best) == 0 {
+				population.best = append(population.best, scores[j])
+			} else {
+				if scores[j].score < population.best[len(population.best)-1].score {
 					population.best = append(population.best, scores[j])
-                    
-				} else {
-					if scores[j].score < population.best[len(population.best)-1].score {
-						population.best = append(population.best, scores[j])
-					}
 				}
-			}()
+			}
 		}
-		wg.Wait()
 		for j := range population.genomes {
 			spawnGenome(&population.genomes[j], &scores, scoresSum)
 		}
@@ -141,9 +132,6 @@ func main() {
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
 	}
-	runtime.GOMAXPROCS(*numThreads)
-	fmt.Printf("Running on %d CPU threads\n", *numThreads)
-
 	rand.Seed(43)
 	sen := &autogramy.Sentence{}
 	var population Population
