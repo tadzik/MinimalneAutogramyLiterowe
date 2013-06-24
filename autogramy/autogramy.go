@@ -7,9 +7,6 @@ import (
 )
 
 func byteIdx(b byte) int {
-	arr := []byte{b}
-	b = bytes.ToLower(arr)[0]
-
 	return int(b) - int('a')
 }
 
