@@ -47,6 +47,7 @@ func byteIdx(b byte) int {
 
 	return int(b) - int('a')
 }
+
 func findParents(scores *[popCount]GenomScore, scoresSum int) (*Genom, *Genom) {
 	father := &scores[rand.Intn(len(scores))]
 	mother := &scores[rand.Intn(len(scores))]
@@ -66,6 +67,7 @@ func findParents(scores *[popCount]GenomScore, scoresSum int) (*Genom, *Genom) {
 	return &father.genom, &mother.genom
 	panic("Failed to choose parent")
 }
+
 func spawnGenome(genom *Genom, scores *[popCount]GenomScore, scoresSum int) {
 	// random two parents.
 	father, mother := findParents(scores, scoresSum)
@@ -89,6 +91,7 @@ func spawnGenome(genom *Genom, scores *[popCount]GenomScore, scoresSum int) {
 	}
 
 }
+
 func runAlgorithm(population *Population) {
 	scores := [popCount]GenomScore{}
 	sentence := &autogramy.Sentence{}
@@ -130,34 +133,10 @@ func main() {
 		randomizeGenom(&population.genomes[i])
 	}
 	runAlgorithm(&population)
-	/*sen[byteIdx('a')] = 3
-	  sen[byteIdx('c')] = 3
-	  sen[byteIdx('d')] = 2
-	  sen[byteIdx('e')] = 25
-	  sen[byteIdx('f')] = 9
-	  sen[byteIdx('g')] = 4
-	  sen[byteIdx('h')] = 8
-	  sen[byteIdx('i')] = 12
-	  sen[byteIdx('l')] = 3
-	  sen[byteIdx('n')] = 15
-	  sen[byteIdx('o')] = 9
-	  sen[byteIdx('r')] = 8
-	  sen[byteIdx('s')] = 24
-	  sen[byteIdx('t')] = 18
-	  sen[byteIdx('u')] = 5
-	  sen[byteIdx('v')] = 4
-	  sen[byteIdx('w')] = 6
-	  sen[byteIdx('x')] = 2
-	  sen[byteIdx('y')] = 4*/
-	//fmt.Println(sen.String())
 	for i := range population.best {
 		toSentence(&population.best[i], sen)
 		fmt.Println(sen.String())
 		fmt.Println((int)(sen.Score()))
 
 	}
-	/*for i:=0;i<40;i++ {
-	    fmt.Println("Dupa ", rand.NormFloat64()/20)
-	}*/
-
 }
