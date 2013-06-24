@@ -3,16 +3,23 @@ package main
 import (
 	"./autogramy"
 	"bytes"
+	"flag"
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
+	"runtime"
+	"runtime/pprof"
+	"sync"
 )
 
-const (
-	generations = 1000
-	popCount    = 50
-	rankCount   = 6
-)
+var profiling = flag.Bool("profiling", false, "perform profiling with runtime/pprof")
+var numThreads = flag.Int("threads", 1, "how many cpu threads to use")
+var generations = flag.Int("generations", 2000, "how many generations to calculate")
+var rankCount = flag.Int("rankCount", 6, "I have no idea what is this") // XXX FIXME
+//var popCount    = flag.Int("populations", 50, "how many populations to maintain")
+
+const popCount = 50
 
 type Population struct {
 	genomes [popCount]Genom
@@ -54,7 +61,7 @@ func findParents(scores *[popCount]GenomScore, scoresSum int) (*Genom, *Genom) {
 	if father.score < mother.score {
 		father, mother = mother, father
 	}
-	for i := 0; i < rankCount; i++ {
+	for i := 0; i < *rankCount; i++ {
 		candidate := &scores[rand.Intn(len(scores))]
 		if candidate.score < mother.score {
 			if candidate.score < father.score {
@@ -95,27 +102,32 @@ func spawnGenome(genom *Genom, scores *[popCount]GenomScore, scoresSum int) {
 func runAlgorithm(population *Population) {
 	scores := [popCount]GenomScore{}
 	sentence := &autogramy.Sentence{}
-	for i := 0; i < generations; i++ {
+	for i := 0; i < *generations; i++ {
 		//calculate and sum scores
 		scoresSum := 0
+		var wg sync.WaitGroup
 		for j := range scores {
-			scores[j].genom = population.genomes[j]
-			toSentence(&population.genomes[j], sentence)
-			scores[j].score = (int)(sentence.Score())
-			scoresSum += scores[j].score
-			// check if we wonna push the best element on the list of best genomes
-			if len(population.best) == 0 {
-				population.best = append(population.best, population.genomes[j])
-			} else {
-				newSentence := &autogramy.Sentence{}
-				toSentence(&population.best[len(population.best)-1], newSentence)
-				newScore := (int)(newSentence.Score())
-				if scores[j].score < newScore {
-					population.best = append(population.best, scores[j].genom)
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				scores[j].genom = population.genomes[j]
+				toSentence(&population.genomes[j], sentence)
+				scores[j].score = (int)(sentence.Score())
+				scoresSum += scores[j].score
+				// check if we wonna push the best element on the list of best genomes
+				if len(population.best) == 0 {
+					population.best = append(population.best, population.genomes[j])
+				} else {
+					newSentence := &autogramy.Sentence{}
+					toSentence(&population.best[len(population.best)-1], newSentence)
+					newScore := (int)(newSentence.Score())
+					if scores[j].score < newScore {
+						population.best = append(population.best, scores[j].genom)
+					}
 				}
-			}
-
+			}()
 		}
+		wg.Wait()
 		for j := range population.genomes {
 			spawnGenome(&population.genomes[j], &scores, scoresSum)
 		}
@@ -126,6 +138,18 @@ func runAlgorithm(population *Population) {
 	}
 }
 func main() {
+	flag.Parse()
+	if *profiling {
+		f, err := os.Create("profile")
+		if err != nil {
+			panic(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+	runtime.GOMAXPROCS(*numThreads)
+	fmt.Printf("Running on %d CPU threads\n", *numThreads)
+
 	rand.Seed(43)
 	sen := &autogramy.Sentence{}
 	var population Population
@@ -137,6 +161,5 @@ func main() {
 		toSentence(&population.best[i], sen)
 		fmt.Println(sen.String())
 		fmt.Println((int)(sen.Score()))
-
 	}
 }
