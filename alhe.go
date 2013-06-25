@@ -14,7 +14,7 @@ import (
 var profiling = flag.Bool("profiling", false, "perform profiling with runtime/pprof")
 var generations = flag.Int("generations", 2000, "how many generations to calculate")
 var rankCount = flag.Int("rankCount", 6, "Size of extra ranks for the ranking selection")
-var mutation = flag.Float64("mutation", 0.05, "Desired standard deviaotion of mutation")
+var mutation = flag.Float64("mutation", 0.05, "Desired standard deviation of mutation")
 var verbose = flag.Bool("verbose", false, "Verbose output (final results)")
 
 //var popCount    = flag.Int("populations", 50, "how many populations to maintain")
