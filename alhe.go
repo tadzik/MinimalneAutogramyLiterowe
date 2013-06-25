@@ -14,6 +14,7 @@ import (
 var profiling = flag.Bool("profiling", false, "perform profiling with runtime/pprof")
 var generations = flag.Int("generations", 2000, "how many generations to calculate")
 var rankCount = flag.Int("rankCount", 6, "Size of extra ranks for the ranking selection")
+var verbose = flag.Bool("verbose", false, "Verbose output (final results)")
 
 //var popCount    = flag.Int("populations", 50, "how many populations to maintain")
 
@@ -139,9 +140,11 @@ func main() {
 		randomizeGenom(&population.genomes[i])
 	}
 	runAlgorithm(&population)
-	for i := range population.best {
-		toSentence(&population.best[i].genom, sen)
-		fmt.Println(sen.String())
-		fmt.Println((int)(sen.Score()))
+	if *verbose {
+		for i := range population.best {
+			toSentence(&population.best[i].genom, sen)
+			fmt.Println(sen.String())
+			fmt.Println((int)(sen.Score()))
+		}
 	}
 }
