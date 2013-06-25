@@ -104,11 +104,15 @@ func runAlgorithm(population *Population) {
 	for i := 0; i < *generations; i++ {
 		//calculate and sum scores
 		scoresSum := 0
+		bestScore := 99999
 		for j := range scores {
 			scores[j].genom = population.genomes[j]
 			toSentence(&population.genomes[j], sentence)
 			scores[j].score = (int)(sentence.Score())
 			scoresSum += scores[j].score
+			if scores[j].score < bestScore {
+				bestScore = scores[j].score
+			}
 			// check if we wonna push the best element on the list of best genomes
 			if len(population.best) == 0 {
 				population.best = append(population.best, scores[j])
@@ -121,6 +125,7 @@ func runAlgorithm(population *Population) {
 		for j := range population.genomes {
 			spawnGenome(&population.genomes[j], &scores, scoresSum)
 		}
+		fmt.Printf("%d,%f\n", bestScore, float64(scoresSum)/popCount)
 	}
 }
 func main() {
